@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desertion | Credit Scoring Platform</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='img/ML_Platform_icon.png') }}" alt="Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                Credit Scoring Platform
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/application">Application Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/behavior">Behavior Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/collections">Collections</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/desertion">Desertion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/batch">Batch Processing</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Desertion</h1>
+        
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Thông tin khách hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="desertionForm">
+                            <div class="mb-3">
+                                <label for="customer_id" class="form-label">ID khách hàng</label>
+                                <input type="text" class="form-control" id="customer_id" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="months_to_maturity" class="form-label">Số tháng đến kỳ hạn</label>
+                                <input type="number" class="form-control" id="months_to_maturity" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="total_relationship_value" class="form-label">Giá trị quan hệ khách hàng</label>
+                                <input type="number" class="form-control" id="total_relationship_value" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="number_of_products" class="form-label">Số sản phẩm đang sử dụng</label>
+                                <input type="number" class="form-control" id="number_of_products" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="satisfaction_score" class="form-label">Điểm hài lòng (0-10)</label>
+                                <input type="number" class="form-control" id="satisfaction_score" min="0" max="10" step="0.1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="number_of_complaints" class="form-label">Số lần khiếu nại</label>
+                                <input type="number" class="form-control" id="number_of_complaints" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="months_since_last_interaction" class="form-label">Tháng từ lần tương tác cuối</label>
+                                <input type="number" class="form-control" id="months_since_last_interaction" min="0" step="0.1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="age" class="form-label">Tuổi khách hàng</label>
+                                <input type="number" class="form-control" id="age" min="18" max="100" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="tenure_months" class="form-label">Thời gian là khách hàng (tháng)</label>
+                                <input type="number" class="form-control" id="tenure_months" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="monthly_average_balance" class="form-label">Số dư trung bình hàng tháng</label>
+                                <input type="number" class="form-control" id="monthly_average_balance" min="0" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Phân tích</button>
+                            <button type="button" class="btn btn-outline-secondary" id="loadSample">Tải mẫu</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-7">
+                <div class="card mb-4" id="resultCard" style="display: none;">
+                    <div class="card-header bg-primary text-white">
+                        <h5>Kết quả phân tích</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Xác suất rời bỏ</h5>
+                                        <div class="display-4 mb-2" id="desertionProbability">--%</div>
+                                        <div class="progress" style="height: 10px;">
+                                            <div class="progress-bar" id="desertionProgressBar" role="progressbar" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100 border-0 shadow-sm">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">Phân loại rủi ro</h5>
+                                        <span class="badge rounded-pill bg-danger fs-6 p-2 mb-2" id="riskLevel">--</span>
+                                        <p class="card-text" id="primaryReason">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5>Chiến lược giữ chân</h5>
+                            <div class="alert alert-primary" id="retentionStrategy">
+                                <!-- Will be filled by JS -->
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5>Kế hoạch hành động</h5>
+                            <ol class="list-group list-group-numbered" id="actionPlan">
+                                <!-- Will be filled by JS -->
+                            </ol>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>Chi phí giữ chân</h6>
+                                        <p class="mb-0 fs-5" id="retentionCost">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h6>ROI giữ chân</h6>
+                                        <p class="mb-0 fs-5" id="retentionROI">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" id="aboutCard">
+                    <div class="card-header">
+                        <h5>Về Desertion Scoring</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            Desertion Scoring dự đoán khả năng khách hàng sẽ rời bỏ dịch vụ và đưa ra
+                            các chiến lược giữ chân phù hợp. Mô hình phân tích các yếu tố như kỳ hạn
+                            sản phẩm, mức độ hài lòng, số lượng sản phẩm đang sử dụng và các tương tác
+                            gần đây để dự đoán nguy cơ rời bỏ.
+                        </p>
+                        <p>
+                            Dựa trên kết quả phân tích, hệ thống sẽ đề xuất các chiến lược giữ chân
+                            phù hợp với từng khách hàng và tính toán chi phí, ROI của việc giữ chân.
+                        </p>
+                        <p>
+                            Các chiến lược giữ chân có thể bao gồm:
+                        </p>
+                        <ul>
+                            <li>Ưu đãi giá/lãi suất</li>
+                            <li>Nâng cấp sản phẩm</li>
+                            <li>Gia hạn sớm với điều kiện tốt hơn</li>
+                            <li>Chương trình thân thiết với ưu đãi đặc biệt</li>
+                            <li>Tiếp cận cá nhân từ nhân viên quản lý khách hàng</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2025 Credit Scoring Platform. All rights reserved. Huy Nguyen Quoc</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/desertion.js') }}"></script>
+</body>
+</html>

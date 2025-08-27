@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Credit Scoring Platform</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='img/ML_Platform_icon.png') }}" alt="Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                Credit Scoring Platform
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/application">Application Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/behavior">Behavior Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/collections">Collections</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/desertion">Desertion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/batch">Batch Processing</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Dashboard</h1>
+            <div>
+                <button class="btn btn-outline-primary me-2" id="refreshData">
+                    <i class="bi bi-arrow-clockwise"></i> Làm mới
+                </button>
+                <button class="btn btn-outline-secondary" id="exportDashboard">
+                    <i class="bi bi-download"></i> Xuất báo cáo
+                </button>
+            </div>
+        </div>
+        
+        <!-- Date range filter -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="dateRange" class="form-label">Khoảng thời gian</label>
+                        <select class="form-select" id="dateRange">
+                            <option value="today">Hôm nay</option>
+                            <option value="yesterday">Hôm qua</option>
+                            <option value="7days" selected>7 ngày qua</option>
+                            <option value="30days">30 ngày qua</option>
+                            <option value="90days">90 ngày qua</option>
+                            <option value="custom">Tùy chỉnh</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="startDate" class="form-label">Từ ngày</label>
+                        <input type="date" class="form-control" id="startDate">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="endDate" class="form-label">Đến ngày</label>
+                        <input type="date" class="form-control" id="endDate">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Key metrics cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Tổng đơn vay mới</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="mb-0">1,254</h2>
+                            <i class="bi bi-file-earmark-text fs-1"></i>
+                        </div>
+                        <p class="card-text mt-2"><i class="bi bi-arrow-up-circle"></i> 12% so với kỳ trước</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">Tỷ lệ chấp nhận</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="mb-0">68%</h2>
+                            <i class="bi bi-check-circle fs-1"></i>
+                        </div>
+                        <p class="card-text mt-2"><i class="bi bi-arrow-up-circle"></i> 3% so với kỳ trước</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body">
+                        <h5 class="card-title">Tỷ lệ vỡ nợ</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="mb-0">4.2%</h2>
+                            <i class="bi bi-exclamation-triangle fs-1"></i>
+                        </div>
+                        <p class="card-text mt-2"><i class="bi bi-arrow-down-circle"></i> 0.5% so với kỳ trước</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body">
+                        <h5 class="card-title">Khách hàng mới</h5>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2 class="mb-0">876</h2>
+                            <i class="bi bi-person-plus fs-1"></i>
+                        </div>
+                        <p class="card-text mt-2"><i class="bi bi-arrow-up-circle"></i> 8% so với kỳ trước</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts row 1 -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Phân phối điểm tín dụng</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="scoreDistributionDropdown" data-bs-toggle="dropdown">
+                                Loại mô hình
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="scoreDistributionDropdown">
+                                <li><a class="dropdown-item" href="#">Application Scoring</a></li>
+                                <li><a class="dropdown-item" href="#">Behavior Scoring</a></li>
+                                <li><a class="dropdown-item" href="#">Tất cả</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="scoreDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Quyết định phê duyệt</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="approvalDecisionsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts row 2 -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Xu hướng vỡ nợ theo thời gian</h5>
+                        <div class="btn-group btn-group-sm">
+                            <button type="button" class="btn btn-outline-secondary active">Ngày</button>
+                            <button type="button" class="btn btn-outline-secondary">Tuần</button>
+                            <button type="button" class="btn btn-outline-secondary">Tháng</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="defaultTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Hiệu suất thu hồi nợ</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="collectionPerformanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Risk segments and top factors -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Phân khúc rủi ro khách hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="riskSegmentsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Yếu tố ảnh hưởng hàng đầu</h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Yếu tố</th>
+                                    <th>Trọng số</th>
+                                    <th>Ảnh hưởng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Lịch sử thanh toán</td>
+                                    <td>24%</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: 24%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Tỷ lệ nợ / thu nhập</td>
+                                    <td>21%</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: 21%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Thời gian làm việc</td>
+                                    <td>18%</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-success" style="width: 18%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Số lượng khoản vay</td>
+                                    <td>15%</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-warning" style="width: 15%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Thu nhập</td>
+                                    <td>12%</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar bg-warning" style="width: 12%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Model performance metrics -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Hiệu suất mô hình</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mô hình</th>
+                                <th>Độ chính xác</th>
+                                <th>AUC</th>
+                                <th>Gini</th>
+                                <th>KS</th>
+                                <th>F1 Score</th>
+                                <th>PSI</th>
+                                <th>Ngày cập nhật</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Application Scoring</td>
+                                <td>85.2%</td>
+                                <td>0.78</td>
+                                <td>0.56</td>
+                                <td>45.3</td>
+                                <td>0.82</td>
+                                <td>0.04</td>
+                                <td>15/05/2025</td>
+                                <td><span class="badge bg-success">Stable</span></td>
+                            </tr>
+                            <tr>
+                                <td>Behavior Scoring</td>
+                                <td>82.5%</td>
+                                <td>0.75</td>
+                                <td>0.50</td>
+                                <td>42.1</td>
+                                <td>0.79</td>
+                                <td>0.06</td>
+                                <td>10/05/2025</td>
+                                <td><span class="badge bg-success">Stable</span></td>
+                            </tr>
+                            <tr>
+                                <td>Collections Scoring</td>
+                                <td>77.8%</td>
+                                <td>0.72</td>
+                                <td>0.44</td>
+                                <td>38.4</td>
+                                <td>0.74</td>
+                                <td>0.11</td>
+                                <td>08/05/2025</td>
+                                <td><span class="badge bg-warning">Drifting</span></td>
+                            </tr>
+                            <tr>
+                                <td>Desertion Scoring</td>
+                                <td>79.6%</td>
+                                <td>0.73</td>
+                                <td>0.46</td>
+                                <td>39.2</td>
+                                <td>0.76</td>
+                                <td>0.08</td>
+                                <td>12/05/2025</td>
+                                <td><span class="badge bg-success">Stable</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent alerts and notifications -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Thông báo và cảnh báo</h5>
+                <button class="btn btn-sm btn-link">Xem tất cả</button>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-danger me-2">Khẩn cấp</span>
+                            <span>Phát hiện biến động điểm tín dụng bất thường trong phân khúc khách hàng 18-24 tuổi</span>
+                        </div>
+                        <small class="text-muted">2 giờ trước</small>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-warning me-2">Cảnh báo</span>
+                            <span>Tỷ lệ vỡ nợ tăng 5% tại khu vực miền Trung</span>
+                        </div>
+                        <small class="text-muted">6 giờ trước</small>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-info me-2">Thông báo</span>
+                            <span>Cập nhật mô hình Collections Scoring đã hoàn tất</span>
+                        </div>
+                        <small class="text-muted">1 ngày trước</small>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="badge bg-success me-2">Hoàn tất</span>
+                            <span>Báo cáo phân tích xu hướng tháng 5/2025 đã sẵn sàng</span>
+                        </div>
+                        <small class="text-muted">2 ngày trước</small>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Suggested features section -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Tính năng đề xuất cho Dashboard</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">1. Phân tích dữ liệu theo khu vực</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>Thêm bản đồ nhiệt và biểu đồ địa lý để hiển thị phân phối điểm số tín dụng, tỷ lệ vỡ nợ và hiệu suất mô hình theo vùng địa lý.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">2. Theo dõi hiệu suất theo thời gian thực</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>Thêm các widget cập nhật liên tục theo thời gian thực về đơn vay mới, quyết định phê duyệt và cảnh báo rủi ro cao.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">3. Phát hiện gian lận</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>Tích hợp hệ thống phát hiện gian lận với cảnh báo về các mẫu đáng ngờ và trực quan hóa các hoạt động gian lận tiềm ẩn.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">4. AI dự báo xu hướng</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>Tích hợp mô hình dự báo để dự đoán xu hướng điểm tín dụng, tỷ lệ vỡ nợ và đề xuất chủ động cho các chính sách tín dụng.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">5. Khám phá dữ liệu tương tác</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>Thêm các biểu đồ tương tác cho phép người dùng lọc, xem chi tiết và tùy chỉnh các phân tích để khám phá sâu hơn.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">6. Giám sát tự động</h6>
+                            </div>
+                            <div class="card-body">
+                                <p>Tự động theo dõi hiệu suất mô hình và gửi cảnh báo khi phát hiện sự suy giảm hiệu suất hoặc biến động bất thường.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2025 Credit Scoring Platform. All rights reserved. Huy Nguyen Quoc</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript files -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

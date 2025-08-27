@@ -1,0 +1,14 @@
+numpy==1.24.3
+pandas==2.0.2
+scikit-learn==1.2.2
+xgboost==1.7.5
+optbinning==0.17.3
+scorecardpy==0.1.9.2
+matplotlib==3.7.1
+seaborn==0.12.2
+shap==0.41.0
+fastapi==0.99.1
+uvicorn==0.22.0
+pydantic==1.10.9
+pytest==7.3.1
+pyyaml==6.0

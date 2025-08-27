@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Score | Credit Scoring Platform</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Same navbar as index.html -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='img/ML_Platform_icon.png') }}" alt="Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                Credit Scoring Platform
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/application">Application Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/behavior">Behavior Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/collections">Collections</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/desertion">Desertion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/batch">Batch Processing</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Application Score</h1>
+        
+        <div class="row">
+            <div class="col-md-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Thông tin khách hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="applicationForm">
+                            <div class="mb-3">
+                                <label for="customer_id" class="form-label">ID khách hàng</label>
+                                <input type="text" class="form-control" id="customer_id" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="age" class="form-label">Tuổi</label>
+                                <input type="number" class="form-control" id="age" min="18" max="100" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="income" class="form-label">Thu nhập</label>
+                                <input type="number" class="form-control" id="income" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="employment_length" class="form-label">Thời gian làm việc (năm)</label>
+                                <input type="number" class="form-control" id="employment_length" min="0" step="0.1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="debt_to_income" class="form-label">Tỷ lệ nợ/thu nhập</label>
+                                <input type="number" class="form-control" id="debt_to_income" min="0" max="1" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="credit_history_length" class="form-label">Độ dài lịch sử tín dụng (năm)</label>
+                                <input type="number" class="form-control" id="credit_history_length" min="0" step="0.1" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="number_of_debts" class="form-label">Số khoản nợ hiện tại</label>
+                                <input type="number" class="form-control" id="number_of_debts" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="number_of_delinquent_debts" class="form-label">Số khoản nợ quá hạn</label>
+                                <input type="number" class="form-control" id="number_of_delinquent_debts" min="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="homeowner" class="form-label">Sở hữu nhà</label>
+                                <select class="form-select" id="homeowner" required>
+                                    <option value="1">Có</option>
+                                    <option value="0">Không</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Đánh giá</button>
+                            <button type="button" class="btn btn-outline-secondary" id="loadSample">Tải mẫu</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-7">
+                <div class="card mb-4" id="resultCard" style="display: none;">
+                    <div class="card-header bg-primary text-white">
+                        <h5>Kết quả đánh giá</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <h3 id="creditScore">---</h3>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar" id="scoreProgressBar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between mt-1">
+                                <small>300</small>
+                                <small>850</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Hồ sơ rủi ro</h5>
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td>Mức độ rủi ro:</td>
+                                            <td><span id="riskLevel" class="badge rounded-pill"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Xác suất vỡ nợ:</td>
+                                            <td id="defaultProbability">---</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Đề xuất:</td>
+                                            <td><span id="suggestedAction" class="badge rounded-pill"></span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Yếu tố rủi ro chính</h5>
+                                <ul class="list-group list-group-flush" id="riskFactorsList">
+                                    <!-- Will be filled by JS -->
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" id="aboutCard">
+                    <div class="card-header">
+                        <h5>Về Application Scorecard</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>
+                            Application Scorecard đánh giá rủi ro của khách hàng mới dựa trên thông tin đơn vay.
+                            Mô hình sử dụng các đặc điểm nhân khẩu học, lịch sử tín dụng, và tình trạng tài chính
+                            để dự đoán khả năng vỡ nợ và đưa ra điểm tín dụng.
+                        </p>
+                        <p>
+                            Điểm số được đánh giá trên thang điểm 300-850, với:
+                        </p>
+                        <ul>
+                            <li>Rất tốt: 750-850</li>
+                            <li>Tốt: 700-749</li>
+                            <li>Trung bình: 650-699</li>
+                            <li>Yếu: 600-649</li>
+                            <li>Rất yếu: &lt;600</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2025 Credit Scoring Platform. All rights reserved. Huy Nguyen Quoc</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/application.js') }}"></script>
+</body>
+</html>

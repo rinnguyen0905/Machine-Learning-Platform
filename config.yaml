@@ -1,0 +1,57 @@
+data:
+  raw_data_path: 'data/raw/'
+  processed_data_path: 'data/processed/'
+  train_test_split: 0.7
+  random_state: 42
+
+feature_engineering:
+  # WOE binning parameters
+  max_bins: 10
+  min_bin_size: 0.05
+  
+models:
+  application_scorecard:
+    target: 'default_flag'
+    perf_window_months: 12
+    xgb_params:
+      max_depth: 3
+      learning_rate: 0.1
+      n_estimators: 100
+      objective: 'binary:logistic'
+      eval_metric: 'auc'
+  
+  behavior_scorecard:
+    target: 'default_flag'
+    perf_window_months: 6
+    xgb_params:
+      max_depth: 4
+      learning_rate: 0.05
+      n_estimators: 200
+      objective: 'binary:logistic'
+      eval_metric: 'auc'
+  
+  collections_scoring:
+    target: 'further_delinquency'
+    perf_window_months: 1
+    xgb_params:
+      max_depth: 5
+      learning_rate: 0.1
+      n_estimators: 150
+      objective: 'binary:logistic'
+      eval_metric: 'auc'
+  
+  desertion_scoring:
+    target: 'desertion_flag'
+    perf_window_months: 3
+    xgb_params:
+      max_depth: 3
+      learning_rate: 0.1
+      n_estimators: 100
+      objective: 'binary:logistic'
+      eval_metric: 'auc'
+
+scorecard:
+  pdo: 20  # Points to Double the Odds
+  base_score: 600
+  base_odds: 50
+  scaling_method: 'standard'  # 'standard' or 'minmax'

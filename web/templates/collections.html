@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collections | Credit Scoring Platform</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='img/ML_Platform_icon.png') }}" alt="Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                Credit Scoring Platform
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/application">Application Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/behavior">Behavior Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/collections">Collections</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/desertion">Desertion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/batch">Batch Processing</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Collections</h1>
+        
+        <div class="row">
+            <div class="col-md-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Danh sách tài khoản nợ</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="collectionsForm" class="mb-4">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label for="customer_id" class="form-label">ID khách hàng</label>
+                                    <input type="text" class="form-control" id="customer_id" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="days_past_due" class="form-label">Số ngày quá hạn</label>
+                                    <input type="number" class="form-control" id="days_past_due" min="0" required>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label for="outstanding_amount" class="form-label">Số tiền nợ</label>
+                                    <input type="number" class="form-control" id="outstanding_amount" min="0" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label for="number_of_contacts" class="form-label">Số lần liên hệ</label>
+                                    <input type="number" class="form-control" id="number_of_contacts" min="0" required>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="previous_late_payments" class="form-label">Số lần trễ trước đây</label>
+                                    <input type="number" class="form-control" id="previous_late_payments" min="0" required>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="promised_payment_amount" class="form-label">Số tiền hứa trả</label>
+                                    <input type="number" class="form-control" id="promised_payment_amount" min="0" required>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label for="broken_promises" class="form-label">Số lần thất hứa</label>
+                                    <input type="number" class="form-control" id="broken_promises" min="0" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="months_on_book" class="form-label">Số tháng là khách hàng</label>
+                                    <input type="number" class="form-control" id="months_on_book" min="0" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="last_payment_amount" class="form-label">Số tiền thanh toán gần nhất</label>
+                                    <input type="number" class="form-control" id="last_payment_amount" min="0" required>
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button" class="btn btn-success" id="addAccount">Thêm tài khoản</button>
+                                <button type="button" class="btn btn-outline-secondary" id="loadSample">Tải mẫu</button>
+                                <button type="submit" class="btn btn-primary">Phân tích</button>
+                            </div>
+                        </form>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="accountsTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID khách hàng</th>
+                                        <th>Ngày quá hạn</th>
+                                        <th>Số tiền nợ</th>
+                                        <th>Số lần liên hệ</th>
+                                        <th>Số lần trễ trước đây</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="accountsTableBody">
+                                    <!-- Will be filled by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-12" id="resultsSection" style="display: none;">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5>Kết quả phân tích</h5>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="mb-3">Thứ tự ưu tiên thu hồi</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-bordered" id="priorityTable">
+                                <thead>
+                                    <tr>
+                                        <th>Thứ tự</th>
+                                        <th>ID khách hàng</th>
+                                        <th>Điểm ưu tiên</th>
+                                        <th>Chiến lược thu hồi</th>
+                                        <th>Giá trị kỳ vọng (VND)</th>
+                                        <th>ROI thu hồi</th>
+                                        <th>Kênh liên hệ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="priorityTableBody">
+                                    <!-- Will be filled by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2025 Credit Scoring Platform. All rights reserved. Huy Nguyen Quoc</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/collections.js') }}"></script>
+</body>
+</html>

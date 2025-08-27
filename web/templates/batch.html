@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Processing | Credit Scoring Platform</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='img/ML_Platform_icon.png') }}" alt="Logo" width="30" height="30" class="d-inline-block align-text-top me-2">
+                Credit Scoring Platform
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/application">Application Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/behavior">Behavior Score</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/collections">Collections</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/desertion">Desertion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/batch">Batch Processing</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Batch Processing</h1>
+        
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" id="batchTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="file-tab" data-bs-toggle="tab" data-bs-target="#fileInput" type="button" role="tab" aria-controls="fileInput" aria-selected="true">Tải tệp</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="manual-tab" data-bs-toggle="tab" data-bs-target="#manualInput" type="button" role="tab" aria-controls="manualInput" aria-selected="false">Nhập thủ công</button>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="batchTabsContent">
+                            <!-- File upload tab -->
+                            <div class="tab-pane fade show active" id="fileInput" role="tabpanel" aria-labelledby="file-tab">
+                                <form id="fileUploadForm">
+                                    <div class="mb-3">
+                                        <label for="modelType" class="form-label">Chọn loại mô hình</label>
+                                        <select class="form-select" id="fileModelType" required>
+                                            <option value="">-- Chọn mô hình --</option>
+                                            <option value="application">Application Scorecard</option>
+                                            <option value="behavior">Behavior Scorecard</option>
+                                            <option value="collections">Collections Scoring</option>
+                                            <option value="desertion">Desertion Scoring</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="fileUpload" class="form-label">Tải lên tệp CSV/Excel</label>
+                                        <input class="form-control" type="file" id="fileUpload" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="hasHeader" checked>
+                                            <label class="form-check-label" for="hasHeader">
+                                                Tệp có dòng tiêu đề
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-primary">Xử lý hàng loạt</button>
+                                        <button type="button" class="btn btn-outline-secondary" id="downloadTemplate">Tải mẫu</button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            <!-- Manual input tab -->
+                            <div class="tab-pane fade" id="manualInput" role="tabpanel" aria-labelledby="manual-tab">
+                                <form id="manualInputForm">
+                                    <div class="mb-3">
+                                        <label for="manualModelType" class="form-label">Chọn loại mô hình</label>
+                                        <select class="form-select" id="manualModelType" required>
+                                            <option value="">-- Chọn mô hình --</option>
+                                            <option value="application">Application Scorecard</option>
+                                            <option value="behavior">Behavior Scorecard</option>
+                                            <option value="collections">Collections Scoring</option>
+                                            <option value="desertion">Desertion Scoring</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="customerIDs" class="form-label">Danh sách ID khách hàng (mỗi ID một dòng)</label>
+                                        <textarea class="form-control" id="customerIDs" rows="6" required></textarea>
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="button" class="btn btn-outline-secondary me-2" id="downloadManualTemplate">Tải mẫu</button>
+                                        <button type="submit" class="btn btn-primary">Xử lý hàng loạt</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Results section -->
+                <div class="card" id="resultsCard" style="display: none;">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Kết quả xử lý hàng loạt</h5>
+                            <button class="btn btn-sm btn-outline-light" id="exportResults">Xuất kết quả</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="resultsTable">
+                                <thead id="resultsTableHead">
+                                    <!-- Will be filled by JS based on model type -->
+                                </thead>
+                                <tbody id="resultsTableBody">
+                                    <!-- Will be filled by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h5>Thống kê</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <canvas id="distributionChart"></canvas>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm" id="statsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Chỉ số</th>
+                                                    <th>Giá trị</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="statsTableBody">
+                                                <!-- Will be filled by JS -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-light py-4 mt-5">
+        <div class="container text-center">
+            <p>&copy; 2025 Credit Scoring Platform. All rights reserved. Huy Nguyen Quoc</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    <script src="{{ url_for('static', filename='js/api.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/batch.js') }}"></script>
+</body>
+</html>
